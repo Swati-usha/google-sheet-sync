@@ -1,0 +1,81 @@
+name: Birthday Memo Sync
+
+on:
+  schedule:
+    # 9:00 AM IST = 3:30 AM UTC
+    - cron: "30 3 * * *"
+
+  # Allows us to run the workflow manually from GitHub
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+
+      # --------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # 2. Setup Python
+      # --------------------------------------------------
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # --------------------------------------------------
+      # 3. Install dependencies
+      # --------------------------------------------------
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # --------------------------------------------------
+      # 4. Create Google credentials
+      # --------------------------------------------------
+      - name: Create Google credentials
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        run: |
+          printf '%s' "$GOOGLE_CREDENTIALS" > credentials.json
+
+      # --------------------------------------------------
+      # 5. Run synchronization
+      # --------------------------------------------------
+      - name: Run Birthday Memo sync
+        run: |
+          python sync.py
+
+      # --------------------------------------------------
+      # 6. Commit updated Excel + watermark
+      # --------------------------------------------------
+      - name: Commit updated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add Birthdays.xlsx watermark.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update Birthday Memo data"
+            git push
+          fi
+
+      # --------------------------------------------------
+      # 7. Remove credentials
+      # --------------------------------------------------
+      - name: Remove credentials
+        if: always()
+        run: |
+          rm -f credentials.json

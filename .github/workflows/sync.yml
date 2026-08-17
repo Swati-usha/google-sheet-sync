@@ -5,12 +5,12 @@ on:
     # 9:00 AM IST = 3:30 AM UTC
     - cron: "30 3 * * *"
 
-  # Allows us to run the workflow manually from GitHub
   workflow_dispatch:
 
-    concurrency:
+concurrency:
   group: birthday-calendar-sync
   cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest

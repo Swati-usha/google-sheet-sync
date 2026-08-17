@@ -1,4 +1,16 @@
 credentials.json
+# Local development / debugging files
+check_excel.py
+check_rows.py
+debug_sync.py
+inspect_sheet.py
+main.py
+rebuild_raw_data.py
+sync_backup.py
+test_connection.py
+update_excel.bat
+sync.yml
+.github/workflows/update_excel.bat
 
 __pycache__/
 *.pyc

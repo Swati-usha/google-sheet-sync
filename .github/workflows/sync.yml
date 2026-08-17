@@ -8,6 +8,9 @@ on:
   # Allows us to run the workflow manually from GitHub
   workflow_dispatch:
 
+    concurrency:
+  group: birthday-calendar-sync
+  cancel-in-progress: false
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -20,9 +23,11 @@ jobs:
       # --------------------------------------------------
       # 1. Checkout repository
       # --------------------------------------------------
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+    
+     - name: Checkout repository
+       uses: actions/checkout@v4
+       with:
+        ref: main
       # --------------------------------------------------
       # 2. Setup Python
       # --------------------------------------------------

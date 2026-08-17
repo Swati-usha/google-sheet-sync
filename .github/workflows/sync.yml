@@ -23,11 +23,11 @@ jobs:
       # --------------------------------------------------
       # 1. Checkout repository
       # --------------------------------------------------
-    
-     - name: Checkout repository
-       uses: actions/checkout@v4
-       with:
-        ref: main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
       # --------------------------------------------------
       # 2. Setup Python
       # --------------------------------------------------
@@ -54,14 +54,23 @@ jobs:
           printf '%s' "$GOOGLE_CREDENTIALS" > credentials.json
 
       # --------------------------------------------------
-      # 5. Run synchronization
+      # 5. Run Birthday Memo synchronization
       # --------------------------------------------------
       - name: Run Birthday Memo sync
         run: |
           python sync.py
 
       # --------------------------------------------------
-      # 6. Commit updated Excel + watermark
+      # 6. Publish Birthday Calendar to Google Sheets
+      # --------------------------------------------------
+      - name: Publish Birthday Calendar
+        env:
+          BIRTHDAY_CALENDAR_SHEET_ID: ${{ secrets.BIRTHDAY_CALENDAR_SHEET_ID }}
+        run: |
+          python publish_calendar.py
+
+      # --------------------------------------------------
+      # 7. Commit updated Excel + watermark
       # --------------------------------------------------
       - name: Commit updated files
         run: |
@@ -78,7 +87,7 @@ jobs:
           fi
 
       # --------------------------------------------------
-      # 7. Remove credentials
+      # 8. Remove credentials
       # --------------------------------------------------
       - name: Remove credentials
         if: always()
